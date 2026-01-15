@@ -30,7 +30,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 
-// --- Brand Styling (Injected) ---
+// --- Brand Styling ---
 const BrandStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Russo+One&display=swap');
@@ -67,21 +67,18 @@ const BrandStyles = () => (
 );
 
 // --- Mock Data ---
-const MOCK_ACTIVITIES = [
+// In the future, this will be replaced by API calls to your 'itinerary' CPT
+const MOCK_ITINERARIES = [
   { id: 101, type: 'activity', title: 'Fury Water Adventures: Ultimate Adventure', location: 'Key West, FL', price: 165, image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=300', isFury: true },
   { id: 102, type: 'activity', title: 'Key West Sunset Sail', location: 'Key West, FL', price: 85, image: 'https://images.unsplash.com/photo-1596323605786-226466b03387?auto=format&fit=crop&q=80&w=300' },
-  { id: 103, type: 'activity', title: 'Dry Tortugas Seaplane', location: 'Key West, FL', price: 450, image: 'https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?auto=format&fit=crop&q=80&w=300' },
   { id: 201, type: 'stay', title: 'The Marker Key West Harbor Resort', location: 'Key West, FL', price: 450, image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=300' },
-  { id: 202, type: 'stay', title: 'Opal Key Resort & Marina', location: 'Key West, FL', price: 520, image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=300' },
   { id: 301, type: 'cruise', title: '4-Day Bahamas Cruise', location: 'Miami Departure', price: 499, image: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&q=80&w=300' },
-  { id: 302, type: 'cruise', title: 'Alaskan Glacier Explorer', location: 'Seattle Departure', price: 1200, image: 'https://images.unsplash.com/photo-1516216628259-7a548d28cb11?auto=format&fit=crop&q=80&w=300' },
 ];
 
 const TRAINING_MODULES = [
   { id: 1, title: 'Ambassador Quick Start Guide', duration: '15 min', type: 'free', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=300' },
   { id: 2, title: 'Maximizing Hotel Commissions', duration: '10 min', type: 'free', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=300' },
   { id: 3, title: 'Advanced SEO for Travel Blogs', duration: '45 min', type: 'pro', image: 'https://images.unsplash.com/photo-1571786256017-aee7a0c009b6?auto=format&fit=crop&q=80&w=300' },
-  { id: 4, title: 'Mastering TikTok for Travel Sales', duration: '30 min', type: 'pro', image: 'https://images.unsplash.com/photo-1611605698383-ef78b6578277?auto=format&fit=crop&q=80&w=300' },
 ];
 
 // --- Main App ---
@@ -91,7 +88,7 @@ export default function App() {
 
   // Load user session on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('cruisy_ambassador_final');
+    const savedUser = localStorage.getItem('cruisy_ambassador_real');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -104,22 +101,21 @@ export default function App() {
       featuredActivities: [] 
     };
     setUser(defaultData);
-    localStorage.setItem('cruisy_ambassador_final', JSON.stringify(defaultData));
+    localStorage.setItem('cruisy_ambassador_real', JSON.stringify(defaultData));
   };
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem('cruisy_ambassador_final');
+    localStorage.removeItem('cruisy_ambassador_real');
     setActiveTab('overview');
   };
 
   const updateUser = (updates) => {
     const updated = { ...user, ...updates };
     setUser(updated);
-    localStorage.setItem('cruisy_ambassador_final', JSON.stringify(updated));
+    localStorage.setItem('cruisy_ambassador_real', JSON.stringify(updated));
   };
 
-  // If no user, show the Landing/Auth Page
   if (!user) {
     return (
       <>
@@ -186,7 +182,6 @@ export default function App() {
 
         {/* Main Content */}
         <main className="flex-1 md:ml-64 p-4 md:p-8 min-h-screen relative pb-24 md:pb-8 w-full max-w-full z-10">
-          {/* Mobile Header */}
           <div className="md:hidden flex items-center justify-between mb-6 bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-sm border border-[#34a4b8]/20 sticky top-4 z-30">
             <a href="https://cruisytravel.com" target="_blank" rel="noopener noreferrer">
               <img src="https://cruisytravel.com/wp-content/uploads/2024/01/cropped-20240120_025955_0000.png" alt="Cruisy" className="h-8 w-auto" />
@@ -251,7 +246,7 @@ function Overview({ user, setActiveTab }) {
               <h3 className="font-russo text-xl md:text-2xl mb-2 flex items-center gap-2">
                 Your Public Profile Page {user.plan === 'pro' && <Crown size={24} className="text-white fill-white" />}
               </h3>
-              <p className="text-white/80 mb-6 font-medium text-sm md:text-base max-w-lg">This link goes to your Divi profile page. Bookings made here are tracked to you.</p>
+              <p className="text-white/80 mb-6 font-medium text-sm md:text-base max-w-lg">This link goes to your Divi profile page.</p>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white/20 backdrop-blur-md p-2 pl-4 rounded-xl border border-white/20 w-full">
                 <Globe size={18} className="text-white shrink-0 hidden sm:block" />
                 <code className="text-white font-bold font-mono text-xs md:text-sm flex-1 truncate">{mainLink}</code>
@@ -308,8 +303,8 @@ function Membership({ user, updateUser }) {
   const [billingCycle, setBillingCycle] = useState('year'); 
   
   // REPLACE THESE WITH YOUR ACTUAL STRIPE LINKS
-  const STRIPE_MONTHLY_URL = "https://buy.stripe.com/00waEW1DF1gSf6fevR24000";
-  const STRIPE_YEARLY_URL = "https://buy.stripe.com/6oU00iaabgbM4rBdrN24001";
+  const STRIPE_MONTHLY_URL = "https://buy.stripe.com/YOUR_ACTUAL_MONTHLY_LINK";
+  const STRIPE_YEARLY_URL = "https://buy.stripe.com/YOUR_ACTUAL_YEARLY_LINK";
 
   const handleUpgrade = () => {
     const link = billingCycle === 'year' ? STRIPE_YEARLY_URL : STRIPE_MONTHLY_URL;
@@ -376,7 +371,7 @@ function ProfileEditor({ user, updateUser }) {
         <div><h2 className="text-2xl md:text-3xl font-russo text-slate-800">Edit Page</h2><p className="text-slate-500">Manage your bio and featured activities.</p></div>
         <div className="bg-white border border-slate-200 p-1 rounded-xl flex w-full md:w-auto shadow-sm">
            <button onClick={() => setActiveTab('details')} className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all text-center ${activeTab === 'details' ? 'bg-[#34a4b8] text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}>Profile Info</button>
-           <button onClick={() => setActiveTab('activities')} className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all text-center ${activeTab === 'activities' ? 'bg-[#34a4b8] text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}>Select Tours</button>
+           <button onClick={() => setActiveTab('activities')} className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all text-center ${activeTab === 'activities' ? 'bg-[#34a4b8] text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}>Select Itineraries</button>
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -388,7 +383,7 @@ function ProfileEditor({ user, updateUser }) {
              </div>
           ) : (
              <div className="space-y-4">
-               <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Search tours..." className="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-[#34a4b8] outline-none min-w-0" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
+               <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Search itineraries..." className="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-[#34a4b8] outline-none min-w-0" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">{[{ id: 'all', label: 'All' }, { id: 'activity', label: 'Activities', icon: <MapPin size={14} /> }, { id: 'stay', label: 'Stays', icon: <Home size={14} /> }, { id: 'cruise', label: 'Cruises', icon: <Anchor size={14} /> }].map(cat => (<button key={cat.id} onClick={() => setCategoryFilter(cat.id)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${categoryFilter === cat.id ? 'bg-slate-800 text-white' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'}`}>{cat.icon}{cat.label}</button>))}</div>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                  {filteredActivities.map(activity => {
@@ -409,70 +404,6 @@ function ProfileEditor({ user, updateUser }) {
           <div className="flex flex-col sm:flex-row items-center justify-end gap-4 pt-4 border-t border-slate-200 mt-6 pb-4 md:pb-0">{lastSaved && <span className="text-sm text-slate-400">Saved at {lastSaved}</span>}<button onClick={handlePublish} disabled={isSaving} className="w-full sm:w-auto bg-[#34a4b8] text-white font-russo text-lg px-8 py-3 rounded-xl hover:bg-[#268191] transition-all shadow-lg shadow-[#34a4b8]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-2">{isSaving ? <RefreshCw className="animate-spin" size={20} /> : <Globe size={20} />}{isSaving ? 'SYNCING...' : 'PUBLISH CHANGES'}</button></div>
         </div>
         <div className="hidden lg:block lg:col-span-1"><div className="sticky top-6"><div className="flex justify-between items-center mb-4"><h3 className="font-russo text-slate-800 flex items-center gap-2">Preview</h3><a href="#" className="text-xs text-[#34a4b8] font-bold flex items-center gap-1 hover:underline">Open Live <ExternalLink size={10} /></a></div><div className="border-[12px] border-slate-800 rounded-[3rem] overflow-hidden bg-white shadow-2xl h-[600px] relative scrollbar-hide"><div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-xl z-20"></div><div className="h-full overflow-y-auto pb-12 bg-white custom-scrollbar"><div className="bg-[#e0f4f7] h-48 w-full relative flex flex-col items-center justify-center text-center p-4"><div className="w-20 h-20 rounded-full bg-white border-4 border-white shadow-md flex items-center justify-center text-3xl font-russo text-[#34a4b8] mb-2">{user.name.charAt(0)}</div><h4 className="font-russo text-xl text-slate-800 leading-none flex items-center gap-1">{user.name} {user.plan === 'pro' && <Crown size={14} className="text-amber-500 fill-amber-500" />}</h4><p className="text-[10px] text-[#34a4b8] font-bold uppercase tracking-widest mt-1">Cruisy Ambassador</p></div><div className="p-6 text-center"><p className="text-sm text-slate-600 leading-relaxed font-light">{user.bio}</p></div><div className="px-4 space-y-4 bg-slate-50 py-8"><div className="text-center mb-4"><h5 className="font-russo text-slate-800 text-lg">My Favorites</h5><div className="h-1 w-12 bg-[#34a4b8] mx-auto rounded-full mt-1"></div></div>{(user.featuredActivities || []).length === 0 ? (<div className="text-center py-8 text-slate-400 text-xs italic">(No items selected)</div>) : ((user.featuredActivities || []).map(act => (<div key={act.id} className="bg-white rounded-lg overflow-hidden shadow-sm border border-slate-100"><div className="h-28 bg-slate-200"><img src={act.image} className="w-full h-full object-cover" /></div><div className="p-3"><h6 className="font-bold text-sm text-slate-800 line-clamp-1">{act.title}</h6><div className="flex justify-between items-center mt-1"><p className="text-xs text-slate-500">{act.location}</p><span className="text-[#34a4b8] font-bold text-xs">View</span></div></div></div>)))}</div></div></div></div></div>
-      </div>
-    </div>
-  );
-}
-
-function LinkGenerator({ user }) {
-  const [sourceUrl, setSourceUrl] = useState('');
-  const [generatedLink, setGeneratedLink] = useState('');
-  
-  const handleGenerate = () => {
-    if (!sourceUrl) return;
-    const cleanUrl = sourceUrl.split('?')[0];
-    setGeneratedLink(`${cleanUrl}?ref=${user.slug}&utm_source=ambassador`);
-  };
-
-  return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-russo text-slate-800">Link Generator</h2>
-        <p className="text-slate-500">Create a trackable link for ANY specific activity.</p>
-      </div>
-
-      <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-xl shadow-[#34a4b8]/5">
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Activity URL</label>
-            <div className="flex shadow-sm rounded-xl w-full">
-               <span className="bg-slate-50 border border-r-0 border-slate-200 rounded-l-xl px-4 flex items-center text-slate-400 shrink-0">
-                 <LinkIcon size={18} />
-               </span>
-               <input 
-                type="text" 
-                placeholder="https://cruisytravel.com/activities/sunset-sail"
-                className="w-full px-4 py-4 rounded-r-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] outline-none font-medium text-slate-600 min-w-0"
-                value={sourceUrl}
-                onChange={(e) => setSourceUrl(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <button 
-            onClick={handleGenerate}
-            className="w-full bg-slate-800 text-white font-russo text-lg py-4 rounded-xl hover:bg-slate-900 transition-colors flex items-center justify-center gap-2"
-          >
-            GENERATE LINK
-          </button>
-
-          {generatedLink && (
-            <div className="mt-6 bg-[#e0f4f7] p-6 rounded-2xl border border-[#34a4b8]/20 animate-in fade-in slide-in-from-top-2">
-              <label className="block text-xs font-bold text-[#34a4b8] uppercase mb-2">Ready to Share</label>
-              <div className="flex gap-2 w-full">
-                <div className="flex-1 bg-white border border-[#34a4b8]/30 px-4 py-3 rounded-xl text-sm text-slate-600 font-mono overflow-x-auto whitespace-nowrap min-w-0">
-                  {generatedLink}
-                </div>
-                <button 
-                  onClick={() => navigator.clipboard.writeText(generatedLink)}
-                  className="bg-[#34a4b8] text-white px-5 rounded-xl hover:bg-[#268191] transition-colors shadow-lg shadow-[#34a4b8]/20 shrink-0"
-                >
-                  <Copy size={20} />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
@@ -510,9 +441,13 @@ function AuthPage({ onLogin }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const generatedSlug = formData.name ? formData.name.toLowerCase().replace(/\s+/g, '-') : 'alex-travels';
     onLogin({
-      name: formData.name || 'Alex Smith', email: formData.email, slug: formData.slug || 'alex-travels',
-      bio: 'Just a girl exploring the world, one cruise at a time.', joinedDate: 'Oct 2023'
+      name: formData.name || 'Alex Smith', 
+      email: formData.email, 
+      slug: generatedSlug, // Auto-generate slug from name
+      bio: 'Just a girl exploring the world, one cruise at a time.', 
+      joinedDate: 'Oct 2023'
     });
   };
 
@@ -523,44 +458,180 @@ function AuthPage({ onLogin }) {
 
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans">
+      
+      {/* Learn More Modal */}
       {isLearnMoreOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsLearnMoreOpen(false)}></div>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-6 bg-[#34a4b8] text-white flex justify-between items-center"><h3 className="font-russo text-xl">About the Program</h3><button onClick={() => setIsLearnMoreOpen(false)}><XCircle className="w-6 h-6 hover:text-white/80" /></button></div>
-            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-              <div className="space-y-2"><div className="flex items-center justify-between"><h4 className="font-bold text-slate-800 flex items-center gap-2"><Zap size={18} className="text-amber-500" /> It's Free to Join</h4><button onClick={scrollToForm} className="text-xs text-[#34a4b8] hover:underline font-medium font-bold">Sign Up / Sign In</button></div><p className="text-slate-600 text-sm">Sign up in seconds. Start on the Standard plan, or upgrade to Elite for higher earnings.</p></div>
-              <div className="space-y-2"><h4 className="font-bold text-slate-800 flex items-center gap-2"><Crown size={18} className="text-amber-500" /> Elite Upgrade Available</h4><p className="text-slate-600 text-sm">Want to earn more? Upgrade to our Elite tier for 15% commission, faster weekly payouts, and exclusive training.</p></div>
-              <div className="space-y-2"><h4 className="font-bold text-slate-800 flex items-center gap-2"><Globe size={18} className="text-[#34a4b8]" /> Your Own Booking Page</h4><p className="text-slate-600 text-sm">You get a custom `cruisytravel.com/your-name` link. Share it on social media, text it to friends, or put it in your bio.</p></div>
-              <div className="space-y-2"><h4 className="font-bold text-slate-800 flex items-center gap-2"><DollarSign size={18} className="text-green-600" /> Automatic Tracking</h4><p className="text-slate-600 text-sm">When someone books ANY activity, hotel, or cruise using your link, we track it. You earn 10-12% on tours and up to 5% on stays/cruises.</p></div>
-              <div className="space-y-2"><h4 className="font-bold text-slate-800 flex items-center gap-2"><Calendar size={18} className="text-purple-600" /> Monthly Payouts</h4><p className="text-slate-600 text-sm">We verify bookings after travel is completed and send your earnings directly to you.</p></div>
+            <div className="p-6 bg-[#34a4b8] text-white flex justify-between items-center">
+              <h3 className="font-russo text-xl">About the Program</h3>
+              <button onClick={() => setIsLearnMoreOpen(false)}><XCircle className="w-6 h-6 hover:text-white/80" /></button>
             </div>
-            <div className="p-4 border-t border-slate-100 bg-slate-50 text-center"><button onClick={() => setIsLearnMoreOpen(false)} className="text-[#34a4b8] font-bold text-sm">Close</button></div>
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-slate-800 flex items-center gap-2"><Zap size={18} className="text-amber-500" /> It's Free to Join</h4>
+                    <button onClick={scrollToForm} className="text-xs text-[#34a4b8] hover:underline font-medium font-bold">Sign Up / Sign In</button>
+                </div>
+                <p className="text-slate-600 text-sm">Sign up in seconds. Start on the Standard plan, or upgrade to Elite for higher earnings.</p>
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="font-bold text-slate-800 flex items-center gap-2"><Crown size={18} className="text-amber-500" /> Elite Upgrade Available</h4>
+                <p className="text-slate-600 text-sm">Want to earn more? Upgrade to our Elite tier for 15% commission, faster weekly payouts, and exclusive training.</p>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-bold text-slate-800 flex items-center gap-2"><Globe size={18} className="text-[#34a4b8]" /> Your Own Booking Page</h4>
+                <p className="text-slate-600 text-sm">You get a custom `cruisytravel.com/your-name` link. Share it on social media, text it to friends, or put it in your bio.</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-bold text-slate-800 flex items-center gap-2"><DollarSign size={18} className="text-green-600" /> Automatic Tracking</h4>
+                <p className="text-slate-600 text-sm">When someone books ANY activity, hotel, or cruise using your link, we track it. You earn 10-12% on tours and up to 5% on stays/cruises.</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-bold text-slate-800 flex items-center gap-2"><Calendar size={18} className="text-purple-600" /> Monthly Payouts</h4>
+                <p className="text-slate-600 text-sm">We verify bookings after travel is completed and send your earnings directly to you.</p>
+              </div>
+            </div>
+            <div className="p-4 border-t border-slate-100 bg-slate-50 text-center">
+              <button onClick={() => setIsLearnMoreOpen(false)} className="text-[#34a4b8] font-bold text-sm">Close</button>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Left: Marketing / Value Prop */}
       <div className="md:w-1/2 relative flex flex-col justify-center p-8 md:p-12 lg:p-16 text-white overflow-hidden bg-gray-900">
-         <div className="absolute inset-0 z-0"><img src="https://images.pexels.com/photos/11360602/pexels-photo-11360602.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Key West" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-[#34a4b8]/95 via-[#34a4b8]/70 to-[#34a4b8]/30 mix-blend-multiply"></div><div className="absolute inset-0 bg-gradient-to-r from-teal-900/80 to-transparent"></div></div>
+         {/* HERO IMAGE AND OVERLAY */}
+         <div className="absolute inset-0 z-0">
+            <img 
+              src="https://images.pexels.com/photos/11360602/pexels-photo-11360602.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
+              alt="Key West" 
+              className="w-full h-full object-cover"
+            />
+            {/* Teal-tinted gradient overlay for readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#34a4b8]/95 via-[#34a4b8]/70 to-[#34a4b8]/30 mix-blend-multiply"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-teal-900/80 to-transparent"></div>
+         </div>
+
          <div className="relative z-10 max-w-lg mx-auto md:mx-0">
-           <div className="flex items-center gap-4 mb-8"><img src="https://cruisytravel.com/wp-content/uploads/2024/01/cropped-20240120_025955_0000.png" alt="Cruisy" className="h-12 w-auto bg-white p-2 rounded-lg inline-block" /><a href="https://cruisytravel.com" className="text-white hover:underline text-sm font-bold flex items-center gap-1 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors border border-white/20 backdrop-blur-sm"><ArrowLeft size={14} /> Back to CruisyTravel.com</a></div>
+           {/* LOGO & BACK LINK */}
+           <div className="flex items-center gap-4 mb-8">
+             <img src="https://cruisytravel.com/wp-content/uploads/2024/01/cropped-20240120_025955_0000.png" alt="Cruisy" className="h-12 w-auto bg-white p-2 rounded-lg inline-block" />
+             <a href="https://cruisytravel.com" className="text-white hover:underline text-sm font-bold flex items-center gap-1 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors border border-white/20 backdrop-blur-sm">
+               <ArrowLeft size={14} /> Back to CruisyTravel.com
+             </a>
+           </div>
+           
            <h1 className="text-4xl md:text-5xl font-russo mb-6 leading-tight drop-shadow-md">Get Paid to Share Paradise.</h1>
+           
            <p className="text-blue-50 text-lg mb-8 font-light drop-shadow-sm">Become a Cruisy Ambassador and earn commissions on thousands of experiences, hotels, and cruises.</p>
+           
            <div className="space-y-6">
-             <div className="flex items-start gap-4"><div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Palmtree size={24} className="text-white" /></div><div><h3 className="font-russo text-xl text-white">10-12% on Activities</h3><p className="text-blue-50 text-sm">Earn 10% on most tours. Get <strong>12%</strong> on Fury Water Adventures!</p></div></div>
-             <div className="flex items-start gap-4"><div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Home size={24} className="text-white" /></div><div><h3 className="font-russo text-xl text-white">Up to 5% on Stays & Cruises</h3><p className="text-blue-50 text-sm">Earn up to 5% on hotels and cruises. <br/><em>(e.g., Earn $250 on a $5,000 booking!)</em></p></div></div>
-             <div className="flex items-start gap-4"><div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Globe size={24} className="text-white" /></div><div className="w-full"><h3 className="font-russo text-xl text-white">Your Own Booking Page</h3><p className="text-blue-50 text-sm mb-2">Get a custom <strong>cruisytravel.com/you</strong> page to share with followers. We track every booking automatically.</p><button onClick={() => setIsLearnMoreOpen(true)} className="w-full mt-8 py-3 bg-white/20 hover:bg-white/30 text-white border border-white/40 rounded-xl transition-colors flex items-center justify-center gap-2 backdrop-blur-sm text-sm font-bold shadow-lg"><Info size={16} /> Program Details</button></div></div>
+             <div className="flex items-start gap-4">
+               <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Palmtree size={24} className="text-white" /></div>
+               <div>
+                 <h3 className="font-russo text-xl text-white">10-12% on Activities</h3>
+                 <p className="text-blue-50 text-sm">Earn 10% on most tours. Get <strong>12%</strong> on Fury Water Adventures!</p>
+               </div>
+             </div>
+
+             <div className="flex items-start gap-4">
+               <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Home size={24} className="text-white" /></div>
+               <div>
+                 <h3 className="font-russo text-xl text-white">Up to 5% on Stays & Cruises</h3>
+                 <p className="text-blue-50 text-sm">Earn up to 5% on hotels and cruises. <br/><em>(e.g., Earn $250 on a $5,000 booking!)</em></p>
+               </div>
+             </div>
+             
+             {/* UPDATED: "Your Own Booking Page" instead of Simple Tracking */}
+             <div className="flex items-start gap-4">
+               <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Globe size={24} className="text-white" /></div>
+               <div className="w-full">
+                 <h3 className="font-russo text-xl text-white">Your Own Booking Page</h3>
+                 <p className="text-blue-50 text-sm mb-2">Get a custom <strong>cruisytravel.com/you</strong> page to share with followers. We track every booking automatically.</p>
+                 <button 
+                   onClick={() => setIsLearnMoreOpen(true)}
+                   className="w-full mt-8 py-3 bg-white/20 hover:bg-white/30 text-white border border-white/40 rounded-xl transition-colors flex items-center justify-center gap-2 backdrop-blur-sm text-sm font-bold shadow-lg"
+                 >
+                   <Info size={16} /> Program Details
+                 </button>
+               </div>
+             </div>
            </div>
          </div>
       </div>
+
+      {/* Right: Login Form */}
       <div className="md:w-1/2 flex items-center justify-center p-8 bg-slate-50">
          <div id="auth-form" className="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
-            <div className="text-center mb-8"><h2 className="text-2xl font-russo text-slate-800">{isLogin ? 'Welcome Back' : 'Join the Crew'}</h2><p className="text-slate-500 text-sm">{isLogin ? 'Sign in to access your dashboard' : 'Create your account to start earning'}</p></div>
-            <div className="flex bg-slate-100 p-1 rounded-xl mb-6"><button onClick={() => setIsLogin(true)} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isLogin ? 'bg-white text-[#34a4b8] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>Sign In</button><button onClick={() => setIsLogin(false)} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isLogin ? 'bg-white text-[#34a4b8] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>Sign Up</button></div>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-russo text-slate-800">{isLogin ? 'Welcome Back' : 'Join the Crew'}</h2>
+              <p className="text-slate-500 text-sm">{isLogin ? 'Sign in to access your dashboard' : 'Create your account to start earning'}</p>
+            </div>
+
+            <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
+              <button 
+                onClick={() => setIsLogin(true)}
+                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isLogin ? 'bg-white text-[#34a4b8] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+              >
+                Sign In
+              </button>
+              <button 
+                onClick={() => setIsLogin(false)}
+                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isLogin ? 'bg-white text-[#34a4b8] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+              >
+                Sign Up
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
-              {!isLogin && <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Full Name</label><input type="text" required className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] focus:border-[#34a4b8] outline-none transition-all" placeholder="e.g. Alex Smith" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} /></div>}
-              <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Email Address</label><input type="email" required className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] focus:border-[#34a4b8] outline-none transition-all" placeholder="you@example.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} /></div>
-              <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Password</label><input type="password" required className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] focus:border-[#34a4b8] outline-none transition-all" placeholder="••••••••" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} /></div>
-              <button type="submit" className="w-full bg-[#34a4b8] text-white font-bold font-russo py-4 rounded-xl hover:bg-[#268191] transition-all shadow-lg shadow-[#34a4b8]/20 mt-4 active:scale-95 text-lg tracking-wide flex items-center justify-center gap-2">{isLogin ? 'ENTER PORTAL' : 'CREATE ACCOUNT'} <ArrowRight size={20} /></button>
+              {!isLogin && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Full Name</label>
+                  <input 
+                    type="text" 
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] focus:border-[#34a4b8] outline-none transition-all"
+                    placeholder="e.g. Alex Smith"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  />
+                </div>
+              )}
+              
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Email Address</label>
+                <input 
+                  type="email" 
+                  required
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] focus:border-[#34a4b8] outline-none transition-all"
+                  placeholder="you@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Password</label>
+                <input 
+                  type="password" 
+                  required
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] focus:border-[#34a4b8] outline-none transition-all"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                />
+              </div>
+
+              <button 
+                type="submit"
+                className="w-full bg-[#34a4b8] text-white font-bold font-russo py-4 rounded-xl hover:bg-[#268191] transition-all shadow-lg shadow-[#34a4b8]/20 mt-4 active:scale-95 text-lg tracking-wide flex items-center justify-center gap-2"
+              >
+                {isLogin ? 'ENTER PORTAL' : 'CREATE ACCOUNT'} <ArrowRight size={20} />
+              </button>
             </form>
          </div>
       </div>
