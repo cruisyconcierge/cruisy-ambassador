@@ -308,8 +308,8 @@ function Membership({ user, updateUser }) {
   const [billingCycle, setBillingCycle] = useState('year'); 
   
   // REPLACE THESE WITH YOUR ACTUAL STRIPE LINKS
-  const STRIPE_MONTHLY_URL = "https://buy.stripe.com/YOUR_ACTUAL_MONTHLY_LINK";
-  const STRIPE_YEARLY_URL = "https://buy.stripe.com/YOUR_ACTUAL_YEARLY_LINK";
+  const STRIPE_MONTHLY_URL = "https://buy.stripe.com/00waEW1DF1gSf6fevR24000";
+  const STRIPE_YEARLY_URL = "https://buy.stripe.com/6oU00iaabgbM4rBdrN24001";
 
   const handleUpgrade = () => {
     const link = billingCycle === 'year' ? STRIPE_YEARLY_URL : STRIPE_MONTHLY_URL;
