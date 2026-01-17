@@ -298,9 +298,9 @@ function Membership({ user, updateUser }) {
        <div className="flex justify-center"><div className="bg-white border border-slate-200 p-1 rounded-xl flex items-center gap-1 shadow-sm"><button onClick={() => setBillingCycle('month')} className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${billingCycle === 'month' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>Monthly</button><button onClick={() => setBillingCycle('year')} className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${billingCycle === 'year' ? 'bg-[#34a4b8] text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>Yearly <span className="bg-amber-100 text-amber-700 text-[10px] px-1.5 py-0.5 rounded uppercase">Save 17%</span></button></div></div>
        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-start">
          {plans.map((plan) => (
-           <div key={plan.id} className={`bg-white rounded-3xl p-8 border transition-all relative ${plan.recommended ? 'border-amber-400 shadow-xl shadow-amber-500/10 scale-105 z-10' : 'border-slate-200 shadow-sm'} ${plan.disabled ? 'opacity-70 grayscale' : ''}`}>
+           <div key={plan.id} className={`bg-white rounded-3xl p-8 border transition-all relative ${plan.recommended ? 'border-amber-400 shadow-xl shadow-amber-500/20 scale-105 z-10 border-2' : 'border-slate-200 shadow-sm'} ${plan.disabled ? 'opacity-70 grayscale' : ''}`}>
              {plan.recommended && <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-md">Best Value</div>}
-             <h3 className="text-xl font-bold text-slate-800 mb-2">{plan.name}</h3>
+             <h3 className="text-xl font-bold text-slate-800 mb-2">{plan.name} {plan.recommended && <Crown size={20} className="inline-block text-amber-500 ml-1 fill-amber-500" />}</h3>
              <div className="flex items-baseline gap-1 mb-6"><span className="text-4xl font-russo text-slate-900">{plan.price}</span><span className="text-slate-500 font-medium text-sm">{plan.period}</span></div>
              <div className="border-t border-slate-100 pt-6 mb-8 space-y-4">{plan.features.map((feat, i) => (<div key={i} className="flex items-start gap-3"><div className={`mt-0.5 rounded-full p-0.5 ${plan.recommended ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-500'}`}><Check size={14} strokeWidth={3} /></div><span className="text-sm text-slate-600">{feat}</span></div>))}</div>
              <button onClick={() => plan.id === 'pro' && !plan.active ? handleUpgrade() : null} disabled={plan.active || plan.disabled} className={`w-full py-4 rounded-xl font-russo text-lg transition-all shadow-lg active:scale-95 ${(plan.active || plan.disabled) ? 'bg-slate-100 text-slate-400 cursor-default shadow-none' : plan.recommended ? 'gold-gradient text-white hover:shadow-amber-500/25' : 'bg-slate-800 text-white hover:bg-slate-900'}`}>{plan.buttonText}</button>
@@ -371,6 +371,7 @@ function ProfileEditor({ user, updateUser }) {
           )}
           <div className="flex flex-col sm:flex-row items-center justify-end gap-4 pt-4 border-t border-slate-200 mt-6 pb-4 md:pb-0">{lastSaved && <span className="text-sm text-slate-400">Saved at {lastSaved}</span>}<button onClick={handlePublish} disabled={isSaving} className="w-full sm:w-auto bg-[#34a4b8] text-white font-russo text-lg px-8 py-3 rounded-xl hover:bg-[#268191] transition-all shadow-lg shadow-[#34a4b8]/20 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-2">{isSaving ? <RefreshCw className="animate-spin" size={20} /> : <Globe size={20} />}{isSaving ? 'SYNCING...' : 'PUBLISH CHANGES'}</button></div>
         </div>
+        {/* Preview column hidden on mobile */}
         <div className="hidden lg:block lg:col-span-1"><div className="sticky top-6"><div className="flex justify-between items-center mb-4"><h3 className="font-russo text-slate-800 flex items-center gap-2">Preview</h3><a href="#" className="text-xs text-[#34a4b8] font-bold flex items-center gap-1 hover:underline">Open Live <ExternalLink size={10} /></a></div><div className="border-[12px] border-slate-800 rounded-[3rem] overflow-hidden bg-white shadow-2xl h-[600px] relative scrollbar-hide"><div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-xl z-20"></div><div className="h-full overflow-y-auto pb-12 bg-white custom-scrollbar"><div className="bg-[#e0f4f7] h-48 w-full relative flex flex-col items-center justify-center text-center p-4"><div className="w-20 h-20 rounded-full bg-white border-4 border-white shadow-md flex items-center justify-center text-3xl font-russo text-[#34a4b8] mb-2">{user.name.charAt(0)}</div><h4 className="font-russo text-xl text-slate-800 leading-none flex items-center gap-1">{user.name} {user.plan === 'pro' && <Crown size={14} className="text-amber-500 fill-amber-500" />}</h4><p className="text-[10px] text-[#34a4b8] font-bold uppercase tracking-widest mt-1">Cruisy Ambassador</p></div><div className="p-6 text-center"><p className="text-sm text-slate-600 leading-relaxed font-light">{user.bio}</p></div><div className="px-4 space-y-4 bg-slate-50 py-8"><div className="text-center mb-4"><h5 className="font-russo text-slate-800 text-lg">My Favorites</h5><div className="h-1 w-12 bg-[#34a4b8] mx-auto rounded-full mt-1"></div></div>{(user.featuredActivities || []).length === 0 ? (<div className="text-center py-8 text-slate-400 text-xs italic">(No items selected)</div>) : ((user.featuredActivities || []).map(act => (<div key={act.id} className="bg-white rounded-lg overflow-hidden shadow-sm border border-slate-100"><div className="h-28 bg-slate-200"><img src={act.image} className="w-full h-full object-cover" /></div><div className="p-3"><h6 className="font-bold text-sm text-slate-800 line-clamp-1">{act.title}</h6><div className="flex justify-between items-center mt-1"><p className="text-xs text-slate-500">{act.location}</p><span className="text-[#34a4b8] font-bold text-xs">View</span></div></div></div>)))}</div></div></div></div></div>
       </div>
     </div>
@@ -408,11 +409,8 @@ function AuthPage({ onLogin }) {
 
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans">
-      
-      {/* Learn More Modal */}
       {isLearnMoreOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsLearnMoreOpen(false)}></div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsLearnMoreOpen(false)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6 bg-[#34a4b8] text-white flex justify-between items-center">
               <h3 className="font-russo text-xl">About the Program</h3>
@@ -438,7 +436,7 @@ function AuthPage({ onLogin }) {
               </div>
               <div className="space-y-2">
                 <h4 className="font-bold text-slate-800 flex items-center gap-2"><DollarSign size={18} className="text-green-600" /> Automatic Tracking</h4>
-                <p className="text-slate-600 text-sm">When someone books ANY activity, hotel, or cruise using your link, we track it. You earn 10-12% on tours and up to 5% on stays/cruises.</p>
+                <p className="text-slate-600 text-sm">When someone books ANY activity, hotel, or cruise using your link, we track it. You earn 10-12% on tours and up to 5% on stays/cruises (e.g., Earn $250 on a $5,000 booking).</p>
               </div>
               <div className="space-y-2">
                 <h4 className="font-bold text-slate-800 flex items-center gap-2"><Calendar size={18} className="text-purple-600" /> Monthly Payouts</h4>
