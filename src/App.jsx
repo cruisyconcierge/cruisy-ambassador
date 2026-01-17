@@ -21,16 +21,21 @@ const BrandStyles = () => (
   `}</style>
 );
 
-// --- Mock Data (Fallback if API fails) ---
+// --- Mock Data ---
 const MOCK_ACTIVITIES = [
-  { id: 101, type: 'activity', title: 'Fury Water Adventures: Ultimate Adventure', location: 'Key West, FL', price: 165, image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5', isFury: true },
-  { id: 102, type: 'activity', title: 'Key West Sunset Sail', location: 'Key West, FL', price: 85, image: 'https://images.unsplash.com/photo-1596323605786-226466b03387' },
-  { id: 201, type: 'stay', title: 'The Marker Key West Harbor Resort', location: 'Key West, FL', price: 450, image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd' },
+  { id: 101, type: 'activity', title: 'Fury Water Adventures: Ultimate Adventure', location: 'Key West, FL', price: 165, image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=300', isFury: true },
+  { id: 102, type: 'activity', title: 'Key West Sunset Sail', location: 'Key West, FL', price: 85, image: 'https://images.unsplash.com/photo-1596323605786-226466b03387?auto=format&fit=crop&q=80&w=300' },
+  { id: 103, type: 'activity', title: 'Dry Tortugas Seaplane', location: 'Key West, FL', price: 450, image: 'https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?auto=format&fit=crop&q=80&w=300' },
+  { id: 201, type: 'stay', title: 'The Marker Key West Harbor Resort', location: 'Key West, FL', price: 450, image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=300' },
+  { id: 202, type: 'stay', title: 'Opal Key Resort & Marina', location: 'Key West, FL', price: 520, image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=300' },
+  { id: 301, type: 'cruise', title: '4-Day Bahamas Cruise', location: 'Miami Departure', price: 499, image: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&q=80&w=300' },
+  { id: 302, type: 'cruise', title: 'Alaskan Glacier Explorer', location: 'Seattle Departure', price: 1200, image: 'https://images.unsplash.com/photo-1516216628259-7a548d28cb11?auto=format&fit=crop&q=80&w=300' },
 ];
 
 const TRAINING_MODULES = [
   { id: 1, title: 'Ambassador Quick Start', duration: '15 min', type: 'free', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173' },
-  { id: 2, title: 'Maximizing Hotel Commissions', duration: '10 min', type: 'free', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945' },
+  { id: 2, title: 'Maximizing Commissions', duration: '10 min', type: 'free', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945' },
+  { id: 3, title: 'Advanced SEO Tactics', duration: '45 min', type: 'pro', image: 'https://images.unsplash.com/photo-1571786256017-aee7a0c009b6' },
 ];
 
 // --- Main App ---
@@ -44,7 +49,6 @@ export default function App() {
   }, []);
 
   const handleLogin = (userData) => {
-    // Ensuring we start with valid data
     const defaultData = {
       ...userData,
       plan: userData.plan || 'free',
@@ -165,6 +169,8 @@ function ProfileEditor({ user, updateUser }) {
     updateUser({ featuredActivities: exists ? current.filter(a => a.id !== activity.id) : [...current, activity] });
   };
 
+  const handlePublish = () => { /* Sync logic */ };
+
   return (
     <div className="space-y-6 animate-in fade-in zoom-in duration-300">
       <div className="bg-white border-l-4 border-[#34a4b8] p-4 rounded-r-xl shadow-sm flex gap-4 text-sm"><Server className="text-[#34a4b8] shrink-0" size={24} /><div><h4 className="font-bold text-slate-800">WordPress Sync</h4><p className="text-slate-500 mt-1">Updates here sync directly to your Cruisy Ambassador Page.</p></div></div>
@@ -173,27 +179,59 @@ function ProfileEditor({ user, updateUser }) {
         <div className="bg-white border border-slate-200 p-1 rounded-xl flex"><button onClick={() => setActiveTab('details')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'details' ? 'bg-[#34a4b8] text-white' : 'text-slate-500'}`}>Profile Info</button><button onClick={() => setActiveTab('activities')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'activities' ? 'bg-[#34a4b8] text-white' : 'text-slate-500'}`}>Select Tours</button></div>
       </div>
       
-      {activeTab === 'details' ? (
-         <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
-            <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Profile Name</label><input type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] outline-none" value={user.name} onChange={(e) => updateUser({ name: e.target.value })} /></div>
-            <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Bio</label><textarea rows="6" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] outline-none" value={user.bio} onChange={(e) => updateUser({ bio: e.target.value })}></textarea></div>
-         </div>
-      ) : (
-         <div className="space-y-4">
-           <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Search tours..." className="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-[#34a4b8] outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
-           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-             {filteredActivities.map(activity => {
-               const isSelected = (user.featuredActivities || []).find(a => a.id === activity.id);
-               return (
-                 <div key={activity.id} onClick={() => toggleActivity(activity)} className={`group cursor-pointer rounded-2xl border overflow-hidden transition-all hover:shadow-lg flex sm:block ${isSelected ? 'border-[#34a4b8] ring-2 ring-[#34a4b8]' : 'border-slate-200 bg-white'}`}>
-                   <div className="h-24 w-24 sm:w-full sm:h-32 bg-slate-200 relative shrink-0"><img src={activity.image} className="w-full h-full object-cover" />{isSelected && <div className="absolute inset-0 bg-[#34a4b8]/80 flex items-center justify-center"><Check className="text-white" /></div>}</div>
-                   <div className="p-3 flex flex-col justify-center"><h4 className="font-bold text-slate-800 text-sm line-clamp-1">{activity.title}</h4><span className="font-bold text-[#34a4b8] text-sm">${activity.price}</span></div>
-                 </div>
-               );
-             })}
-           </div>
-         </div>
-      )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          {activeTab === 'details' ? (
+             <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+                <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Profile Name</label><input type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] outline-none" value={user.name} onChange={(e) => updateUser({ name: e.target.value })} /></div>
+                <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Bio</label><textarea rows="6" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#34a4b8] outline-none" value={user.bio} onChange={(e) => updateUser({ bio: e.target.value })}></textarea></div>
+             </div>
+          ) : (
+             <div className="space-y-4">
+               <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Search tours..." className="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-[#34a4b8] outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 {filteredActivities.map(activity => {
+                   const isSelected = (user.featuredActivities || []).find(a => a.id === activity.id);
+                   return (
+                     <div key={activity.id} onClick={() => toggleActivity(activity)} className={`group cursor-pointer rounded-2xl border overflow-hidden transition-all hover:shadow-lg flex sm:block ${isSelected ? 'border-[#34a4b8] ring-2 ring-[#34a4b8]' : 'border-slate-200 bg-white'}`}>
+                       <div className="h-24 w-24 sm:w-full sm:h-32 bg-slate-200 relative shrink-0"><img src={activity.image} className="w-full h-full object-cover" />{isSelected && <div className="absolute inset-0 bg-[#34a4b8]/80 flex items-center justify-center"><Check className="text-white" /></div>}</div>
+                       <div className="p-3 flex flex-col justify-center"><h4 className="font-bold text-slate-800 text-sm line-clamp-1">{activity.title}</h4><span className="font-bold text-[#34a4b8] text-sm">${activity.price}</span></div>
+                     </div>
+                   );
+                 })}
+               </div>
+             </div>
+          )}
+          <div className="flex justify-end"><button onClick={handlePublish} className="bg-[#34a4b8] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#268191]">PUBLISH CHANGES</button></div>
+        </div>
+        
+        {/* LIVE PREVIEW COLUMN - RESTORED */}
+        <div className="hidden lg:block lg:col-span-1">
+          <div className="sticky top-6">
+            <div className="flex justify-between items-center mb-4"><h3 className="font-russo text-slate-800 flex items-center gap-2">Preview</h3><a href="#" className="text-xs text-[#34a4b8] font-bold flex items-center gap-1 hover:underline">Open Live <ExternalLink size={10} /></a></div>
+            <div className="border-[12px] border-slate-800 rounded-[3rem] overflow-hidden bg-white shadow-2xl h-[600px] relative scrollbar-hide">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-xl z-20"></div>
+              <div className="h-full overflow-y-auto pb-12 bg-white custom-scrollbar">
+                <div className="bg-[#e0f4f7] h-48 w-full relative flex flex-col items-center justify-center text-center p-4">
+                   <div className="w-20 h-20 rounded-full bg-white border-4 border-white shadow-md flex items-center justify-center text-3xl font-russo text-[#34a4b8] mb-2">{user.name.charAt(0)}</div>
+                   <h4 className="font-russo text-xl text-slate-800 leading-none flex items-center gap-1">{user.name} {user.plan === 'pro' && <Crown size={14} className="text-amber-500" />}</h4>
+                   <p className="text-[10px] text-[#34a4b8] font-bold uppercase tracking-widest mt-1">Cruisy Ambassador</p>
+                </div>
+                <div className="p-6 text-center"><p className="text-sm text-slate-600 leading-relaxed font-light">{user.bio}</p></div>
+                <div className="px-4 space-y-4 bg-slate-50 py-8">
+                   <div className="text-center mb-4"><h5 className="font-russo text-slate-800 text-lg">My Favorites</h5><div className="h-1 w-12 bg-[#34a4b8] mx-auto rounded-full mt-1"></div></div>
+                   {(user.featuredActivities || []).length === 0 ? (<div className="text-center py-8 text-slate-400 text-xs italic">(No items selected)</div>) : ((user.featuredActivities || []).map(act => (
+                     <div key={act.id} className="bg-white rounded-lg overflow-hidden shadow-sm border border-slate-100">
+                       <div className="h-28 bg-slate-200"><img src={act.image} className="w-full h-full object-cover" /></div>
+                       <div className="p-3"><h6 className="font-bold text-sm text-slate-800 line-clamp-1">{act.title}</h6><span className="text-[#34a4b8] font-bold text-xs">View</span></div>
+                     </div>
+                   )))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -227,7 +265,6 @@ function AuthPage({ onLogin }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // FIX: Remove 'Alex Smith' fallback. Require name.
     if (!isLogin && !formData.name) return; 
     
     const generatedSlug = formData.name 
@@ -266,7 +303,15 @@ function AuthPage({ onLogin }) {
            <div className="flex items-center gap-4 mb-8"><img src="https://cruisytravel.com/wp-content/uploads/2024/01/cropped-20240120_025955_0000.png" className="h-12 bg-white p-2 rounded-lg" /><span className="font-bold flex items-center gap-1 hover:underline cursor-pointer" onClick={() => window.location.href='https://cruisytravel.com'}><ArrowLeft size={14}/> Back to CruisyTravel.com</span></div>
            <h1 className="text-4xl md:text-5xl font-russo mb-6 leading-tight drop-shadow-md">Get Paid to Share Paradise.</h1>
            <p className="text-blue-50 text-lg mb-8">Become a Cruisy Ambassador. Earn 10-12% on tours & up to 5% on stays.</p>
-           <button onClick={() => setIsLearnMoreOpen(true)} className="w-full mt-8 py-3 bg-white/20 border border-white/40 rounded-xl flex items-center justify-center gap-2 backdrop-blur-sm text-sm font-bold shadow-lg"><Info size={16} /> Program Details</button>
+           
+           {/* RESTORED BENEFITS LIST */}
+           <div className="space-y-6 mb-8">
+             <div className="flex items-start gap-4"><div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Palmtree size={24} className="text-white" /></div><div><h3 className="font-russo text-xl text-white">10-12% on Activities</h3><p className="text-blue-50 text-sm">Earn 10% on most tours. Get <strong>12%</strong> on Fury Water Adventures!</p></div></div>
+             <div className="flex items-start gap-4"><div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Home size={24} className="text-white" /></div><div><h3 className="font-russo text-xl text-white">Up to 5% on Stays & Cruises</h3><p className="text-blue-50 text-sm">Earn up to 5% on hotels and cruises.</p></div></div>
+             <div className="flex items-start gap-4"><div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Globe size={24} className="text-white" /></div><div><h3 className="font-russo text-xl text-white">Your Own Booking Page</h3><p className="text-blue-50 text-sm">Get a custom <strong>cruisytravel.com/you</strong> page to share with followers.</p></div></div>
+           </div>
+
+           <button onClick={() => setIsLearnMoreOpen(true)} className="w-full py-3 bg-white/20 border border-white/40 rounded-xl flex items-center justify-center gap-2 backdrop-blur-sm text-sm font-bold shadow-lg"><Info size={16} /> Program Details</button>
          </div>
       </div>
 
@@ -287,5 +332,5 @@ function AuthPage({ onLogin }) {
 }
 
 function DesktopNavItem({ icon, label, active, onClick, highlight }) {
-  return <button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${active ? (highlight ? 'bg-amber-50 text-amber-600' : 'bg-[#34a4b8] text-white shadow-md') : (highlight ? 'text-amber-600 hover:bg-amber-50' : 'text-slate-500 hover:bg-[#e0f4f7] hover:text-[#34a4b8]')}`}>{icon}{label}</button>;
+  return <button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${active ? (highlight ? 'bg-amber-50 text-amber-600 shadow-md shadow-amber-500/10' : 'bg-[#34a4b8] text-white shadow-md shadow-[#34a4b8]/20') : (highlight ? 'text-amber-600 hover:bg-amber-50' : 'text-slate-500 hover:bg-[#e0f4f7] hover:text-[#34a4b8]')}`}>{icon}{label}</button>;
 }
