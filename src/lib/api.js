@@ -33,21 +33,31 @@ export async function loginUser(username, password) {
   return handleResponse(response);
 }
 
-// 2. Fetch User Profile (Includes ACF Fields)
+// 2. Fetch User Profile (Includes ACF Fields and Public Link)
 export async function getUserProfile(token) {
-  const response = await fetch(`${WP_API_URL}/wp/v2/users/me?context=edit`, {
+  // We explicitly request the 'link' field to get the correct Profile URL (e.g. /author/username)
+  const response = await fetch(`${WP_API_URL}/wp/v2/users/me?context=edit&_fields=id,name,email,slug,acf,link,roles`, {
     headers: { 'Authorization': `Bearer ${token}` }
   });
   return handleResponse(response);
 }
 
-// 3. Update Profile (Saves Bio, Selected Itineraries, Name)
+// 3. Update Profile (Saves Bio, Selected Itineraries, Name, Gallery)
 export async function updateAmbassadorProfile(userId, token, data) {
   // Prepare ACF Data structure
   const acfData = {};
   if (data.bio !== undefined) acfData.bio = data.bio;
-  if (data.featuredActivities) acfData.featured_itineraries = data.featuredActivities.map(a => a.id);
-  if (data.gallery) acfData.travel_gallery = data.gallery; // Assuming ACF Gallery field exists
+  
+  // Safety check for array before mapping
+  if (Array.isArray(data.featuredActivities)) {
+    acfData.featured_itineraries = data.featuredActivities.map(a => a.id);
+  }
+  
+  // FIX: Stringify the gallery array because the ACF field type is 'Text Area'
+  if (data.gallery) {
+    acfData.travel_gallery = JSON.stringify(data.gallery);
+  }
+  
   if (data.plan) acfData.membership_tier = data.plan;
 
   const payload = { acf: acfData };
@@ -106,8 +116,7 @@ export async function createBlogPost(token, postData) {
     ? `${WP_API_URL}/wp/v2/posts/${postData.id}` 
     : `${WP_API_URL}/wp/v2/posts`;
     
-  // WP uses POST for both create and update usually, but sometimes PUT for updates depending on config
-  // Standard REST API supports POST for update with ID
+  // FIX: Use 'pending' status so Subscribers/Contributors can submit without 403 Forbidden error
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -117,7 +126,7 @@ export async function createBlogPost(token, postData) {
     body: JSON.stringify({
       title: postData.title,
       content: postData.content,
-      status: 'publish', 
+      status: 'pending', // Submit for review instead of publishing immediately
     })
   });
   return handleResponse(response);
