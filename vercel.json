@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/wp/:path*",
+      "destination": "https://cruisytravel.com/wp-json/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
