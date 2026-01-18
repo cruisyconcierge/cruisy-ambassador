@@ -1,28 +1,24 @@
 // API Helper for connecting React to WordPress via Vercel Proxy
 
-// CHANGED: Reverted to use the local proxy path. 
-// This allows the app to 'tunnel' through Vercel to your WP site, bypassing CORS blocks on Save/Post actions.
+// 1. PROXY URL (Bypasses CORS)
 const WP_API_URL = '/api/wp';
 
 async function handleResponse(response) {
-  // Check content type to ensure we are getting JSON
   const contentType = response.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {
-    // If not JSON (likely an HTML error page from a plugin breaking), throw text to debug
     const text = await response.text();
-    console.error("API Error (Non-JSON response):", text);
-    // If we get HTML back, it's usually a 404 or 500 error page from the server or security plugin
-    throw new Error("Server connection failed. Please ensure the WordPress plugin 'JWT Authentication for WP REST API' is active.");
+    console.error("API Error (Non-JSON):", text);
+    throw new Error("Server connection failed. Check console for details.");
   }
-
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Something went wrong');
+    console.error("WP API Error:", error);
+    throw new Error(error.message || 'API request failed');
   }
   return response.json();
 }
 
-// 1. Login
+// --- AUTHENTICATION ---
 export async function loginUser(username, password) {
   const response = await fetch(`${WP_API_URL}/jwt-auth/v1/token`, {
     method: 'POST',
@@ -32,18 +28,18 @@ export async function loginUser(username, password) {
   return handleResponse(response);
 }
 
-// 2. Fetch User Profile (Includes ACF Fields)
+// --- USER PROFILE ---
 export async function getUserProfile(token) {
-  const response = await fetch(`${WP_API_URL}/wp/v2/users/me?context=edit`, {
+  const response = await fetch(`${WP_API_URL}/wp/v2/users/me?context=edit&_fields=id,name,email,slug,acf,link,roles`, {
     headers: { 'Authorization': `Bearer ${token}` }
   });
   return handleResponse(response);
 }
 
-// 3. Update Profile (Saves Bio, Selected Itineraries, Name)
 export async function updateAmbassadorProfile(userId, token, data) {
-  // Prepare ACF Data structure
+  // We strictly separate ACF data to ensure it saves even if 'name' fails permissions
   const acfData = {};
+  
   if (data.bio !== undefined) acfData.bio = data.bio;
   
   // Handle Relationship field (Array of IDs)
@@ -51,7 +47,7 @@ export async function updateAmbassadorProfile(userId, token, data) {
     acfData.featured_itineraries = data.featuredActivities.map(a => a.id);
   }
   
-  // Handle Gallery (Stringified JSON for Text Area compatibility)
+  // Handle Gallery (Stringified JSON for Text Area compatibility in ACF)
   if (data.gallery) {
     acfData.travel_gallery = JSON.stringify(data.gallery);
   }
@@ -59,9 +55,10 @@ export async function updateAmbassadorProfile(userId, token, data) {
   if (data.plan) acfData.membership_tier = data.plan;
 
   const payload = { acf: acfData };
+  
+  // Only send name if it's actually different/present
   if (data.name) payload.name = data.name;
 
-  // Use /users/me endpoint for self-updates to ensure permissions handling is correct
   const response = await fetch(`${WP_API_URL}/wp/v2/users/me`, {
     method: 'POST',
     headers: {
@@ -73,25 +70,24 @@ export async function updateAmbassadorProfile(userId, token, data) {
   return handleResponse(response);
 }
 
-// 4. Search Itineraries (For the Selector Tool)
+// --- ITINERARIES ---
 export async function searchItineraries(term = '') {
-  // Fetches 'itinerary' CPT via proxy
+  // Search itineraries via the proxy
   const endpoint = `${WP_API_URL}/wp/v2/itinerary?search=${term}&per_page=20&_fields=id,title,acf,featured_media_url`;
   const response = await fetch(endpoint);
   const data = await handleResponse(response);
   
-  // Transform WP data to match our App's format
   return data.map(item => ({
     id: item.id,
     title: item.title?.rendered || 'Untitled',
     location: item.acf?.location || '', 
     price: item.acf?.price || 0,
     image: item.featured_media_url || '', 
-    type: 'activity' // You can refine this based on categories if needed
+    type: 'activity'
   }));
 }
 
-// 5. Get My Blog Posts
+// --- BLOG POSTS ---
 export async function getMyPosts(authorId, token) {
   const response = await fetch(`${WP_API_URL}/wp/v2/posts?author=${authorId}&status=any&_fields=id,title,date,status,link,featured_media_url,content`, {
     headers: { 'Authorization': `Bearer ${token}` }
@@ -100,7 +96,7 @@ export async function getMyPosts(authorId, token) {
   return data.map(post => ({
     id: post.id,
     title: post.title.rendered,
-    content: post.content.raw, // For editing
+    content: post.content.raw, 
     date: new Date(post.date).toLocaleDateString(),
     status: post.status,
     image: post.featured_media_url || '',
@@ -109,14 +105,12 @@ export async function getMyPosts(authorId, token) {
   }));
 }
 
-// 6. Create/Update Blog Post
 export async function createBlogPost(token, postData) {
   const endpoint = postData.id 
     ? `${WP_API_URL}/wp/v2/posts/${postData.id}` 
     : `${WP_API_URL}/wp/v2/posts`;
     
-  // Use 'pending' status so Subscribers/Contributors can submit without 403 Forbidden error
-  // unless they are Admins/Editors
+  // Use 'pending' status so Subscribers can submit
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -132,7 +126,6 @@ export async function createBlogPost(token, postData) {
   return handleResponse(response);
 }
 
-// 7. Delete Blog Post
 export async function deleteBlogPost(id, token) {
    const response = await fetch(`${WP_API_URL}/wp/v2/posts/${id}`, {
     method: 'DELETE',
