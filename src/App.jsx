@@ -59,17 +59,6 @@ const BrandStyles = () => (
   `}</style>
 );
 
-// --- Mock Data ---
-const MOCK_ACTIVITIES = [
-  { id: 101, type: 'activity', title: 'Fury Water Adventures: Ultimate Adventure', location: 'Key West, FL', price: 165, image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=300', isFury: true },
-  { id: 102, type: 'activity', title: 'Key West Sunset Sail', location: 'Key West, FL', price: 85, image: 'https://images.unsplash.com/photo-1596323605786-226466b03387?auto=format&fit=crop&q=80&w=300' },
-  { id: 103, type: 'activity', title: 'Dry Tortugas Seaplane', location: 'Key West, FL', price: 450, image: 'https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?auto=format&fit=crop&q=80&w=300' },
-  { id: 201, type: 'stay', title: 'The Marker Key West Harbor Resort', location: 'Key West, FL', price: 450, image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=300' },
-  { id: 202, type: 'stay', title: 'Opal Key Resort & Marina', location: 'Key West, FL', price: 520, image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=300' },
-  { id: 301, type: 'cruise', title: '4-Day Bahamas Cruise', location: 'Miami Departure', price: 499, image: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&q=80&w=300' },
-  { id: 302, type: 'cruise', title: 'Alaskan Glacier Explorer', location: 'Seattle Departure', price: 1200, image: 'https://images.unsplash.com/photo-1516216628259-7a548d28cb11?auto=format&fit=crop&q=80&w=300' },
-];
-
 const TRAINING_MODULES = [
   { id: 1, title: 'Ambassador Quick Start Guide', duration: '15 min', type: 'free', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=300' },
   { id: 2, title: 'Maximizing Hotel Commissions', duration: '10 min', type: 'free', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=300' },
@@ -289,7 +278,7 @@ function Overview({ user, setActiveTab }) {
               <h3 className="font-russo text-xl md:text-2xl mb-2 flex items-center gap-2">
                 Your Public Profile Page {user.plan === 'pro' && <Crown size={24} className="text-white fill-white" />}
               </h3>
-              <p className="text-white/80 mb-6 font-medium text-sm md:text-base max-w-lg">This link goes to your Divi profile page. Bookings made here are tracked to you.</p>
+              <p className="text-white/80 mb-6 font-medium text-sm md:text-base max-w-lg">This link goes to your Divi profile page.</p>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white/20 backdrop-blur-md p-2 pl-4 rounded-xl border border-white/20 w-full">
                 <Globe size={18} className="text-white shrink-0 hidden sm:block" />
                 <code className="text-white font-bold font-mono text-xs md:text-sm flex-1 truncate">{mainLink}</code>
@@ -558,6 +547,34 @@ function Gallery({ user, updateUser }) {
     );
   }
 
+function Academy({ user, setActiveTab }) {
+  return (
+    <div className="space-y-6 animate-in fade-in zoom-in duration-300">
+      <div className="flex justify-between items-end"><div><h2 className="text-2xl md:text-3xl font-russo text-slate-800">Cruisy Academy</h2><p className="text-slate-500">Learn how to maximize your earnings.</p></div></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {TRAINING_MODULES.map((module) => {
+          const isLocked = module.type === 'pro' && user.plan !== 'pro';
+          return (
+            <div key={module.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all group">
+               <div className="h-40 bg-slate-200 relative">
+                  <img src={module.image} alt={module.title} className={`w-full h-full object-cover transition-all ${isLocked ? 'grayscale opacity-50' : 'group-hover:scale-105'}`} />
+                  {isLocked && <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-white p-4 text-center"><Lock size={32} className="mb-2" /><span className="font-bold text-sm uppercase tracking-wide">Elite Member Only</span></div>}
+                  {!isLocked && <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><PlayCircle size={48} className="text-white drop-shadow-lg" /></div>}
+                  <div className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded">{module.duration}</div>
+               </div>
+               <div className="p-5">
+                  <div className="flex justify-between items-start mb-2"><span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide ${module.type === 'pro' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>{module.type === 'free' ? 'Free Guide' : 'Pro Course'}</span></div>
+                  <h3 className="font-bold text-slate-800 leading-tight mb-3">{module.title}</h3>
+                  {isLocked ? <button onClick={() => setActiveTab('membership')} className="w-full bg-amber-50 text-amber-700 text-sm font-bold py-2 rounded-lg hover:bg-amber-100 transition-colors flex items-center justify-center gap-2"><Lock size={14} /> Unlock Access</button> : <button className="w-full bg-slate-50 text-slate-600 text-sm font-bold py-2 rounded-lg hover:bg-slate-100 transition-colors">Start Learning</button>}
+               </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function Membership({ user, updateUser }) {
   const [billingCycle, setBillingCycle] = useState('year'); 
   const STRIPE_MONTHLY_URL = "https://buy.stripe.com/YOUR_ACTUAL_MONTHLY_LINK";
@@ -599,6 +616,28 @@ function Membership({ user, updateUser }) {
              <button onClick={() => user.plan === 'pro' ? null : handleUpgrade()} disabled={user.plan === 'pro'} className={`w-full py-4 rounded-xl font-russo text-lg transition-all shadow-lg active:scale-95 ${user.plan === 'pro' ? 'bg-slate-100 text-slate-400 cursor-default' : 'gold-gradient text-white hover:shadow-amber-500/25'}`}>{user.plan === 'pro' ? 'Current Plan' : 'Upgrade to Elite'}</button>
          </div>
        </div>
+    </div>
+  );
+}
+
+function Earnings({ user }) {
+  return (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
+      <div className="flex justify-between items-end"><div><h2 className="text-2xl md:text-3xl font-russo text-slate-800">My Earnings</h2><p className="text-slate-500">Track your income.</p></div></div>
+      <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 flex gap-4 items-start">
+        <div className="bg-orange-100 p-2 rounded-full text-orange-600 shrink-0"><Calendar size={20} /></div>
+        <div><h4 className="font-russo text-orange-800 text-sm">Earnings Update Schedule</h4><p className="text-sm text-orange-800 mt-1">Earnings are manually reviewed and updated by the Cruisy team every Friday.</p></div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="bg-[#34a4b8] text-white p-8 rounded-3xl shadow-xl shadow-[#34a4b8]/20 relative overflow-hidden">
+          <div className="relative z-10"><p className="text-blue-100 font-bold text-sm uppercase tracking-wider">Available Payout</p><h3 className="text-4xl font-russo mt-2">$0.00</h3><button className="mt-6 bg-white text-[#34a4b8] px-6 py-3 rounded-xl text-sm font-bold hover:bg-cyan-50 transition-colors w-full shadow-lg">REQUEST PAYOUT</button></div>
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl"></div>
+        </div>
+        <div className="bg-white p-8 rounded-3xl border border-slate-200 flex flex-col justify-center">
+            <p className="text-slate-400 font-bold text-sm uppercase tracking-wider">Total Earned</p><h3 className="text-3xl font-russo mt-2 text-slate-800">$0.00</h3>
+            <div className="flex flex-col gap-1 mt-2"><span className="text-xs text-slate-500">10-12% on Activities</span><span className="text-xs text-slate-500">Up to 5% on Stays/Cruises</span></div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -677,7 +716,7 @@ function AuthPage({ onLogin, error }) {
              <div className="flex items-start gap-4"><div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Globe size={24} className="text-white" /></div><div><h3 className="font-russo text-xl text-white">Your Own Booking Page</h3><p className="text-blue-50 text-sm">Get a custom <strong>cruisytravel.com/you</strong> page to share with followers.</p></div></div>
            </div>
 
-           <button onClick={() => setIsLearnMoreOpen(true)} className="w-full py-3 bg-white/20 border border-white/40 rounded-xl flex items-center justify-center gap-2 backdrop-blur-sm text-sm font-bold shadow-lg"><Info size={16} /> Program Details</button>
+           <button onClick={() => setIsLearnMoreOpen(true)} className="w-full mt-8 py-3 bg-white/20 border border-white/40 rounded-xl flex items-center justify-center gap-2 backdrop-blur-sm text-sm font-bold shadow-lg"><Info size={16} /> Program Details</button>
          </div>
       </div>
 
@@ -686,7 +725,8 @@ function AuthPage({ onLogin, error }) {
             <h2 className="text-2xl font-russo text-slate-800 text-center mb-8">{isLogin ? 'Welcome Back' : 'Sign Up'}</h2>
             
             {/* TOGGLE */}
-            <div className="flex bg-slate-100 p-1 rounded-xl mb-6"><button onClick={() => setIsLogin(true)} className={`flex-1 py-2 text-sm font-bold rounded-lg ${isLogin ? 'bg-white text-[#34a4b8] shadow-sm' : 'text-slate-400'}`}>Sign In</button><a href="https://cruisytravel.com/wp-login.php?action=register" target="_blank" rel="noreferrer" className={`flex-1 py-2 text-sm font-bold rounded-lg text-center ${!isLogin ? 'bg-white text-[#34a4b8] shadow-sm' : 'text-slate-400'}`}>Join</a></div>
+            <div className="flex bg-slate-100 p-1 rounded-xl mb-6"><button onClick={() => setIsLogin(true)} className={`flex-1 py-2 text-sm font-bold rounded-lg ${isLogin ? 'bg-white text-[#34a4b8] shadow-sm' : 'text-slate-400'}`}>Sign In</button><a href="https://cruisytravel.com/cruisyconnect?action=register" target="_blank" rel="noreferrer" className={`flex-1 py-2 text-sm font-bold rounded-lg text-center ${!isLogin ? 'bg-white text-[#34a4b8] shadow-sm' : 'text-slate-400'}`}>Join</a></div>
+            
             {error && <div className="bg-red-50 text-red-600 text-xs p-3 rounded-lg mb-4">{error}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Username or Email</label><input type="text" required className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} /></div>
