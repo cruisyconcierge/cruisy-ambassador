@@ -1,7 +1,7 @@
 // API Helper for connecting React to WordPress via Vercel Proxy
 
-// CHANGED: We now point to the local proxy defined in vercel.json
-// This bypasses the CORS error because the browser thinks it's talking to the same site.
+// CHANGED: Reverted to use the local proxy path. 
+// This allows the app to 'tunnel' through Vercel to your WP site, bypassing CORS blocks on Save/Post actions.
 const WP_API_URL = '/api/wp';
 
 async function handleResponse(response) {
@@ -24,7 +24,6 @@ async function handleResponse(response) {
 
 // 1. Login
 export async function loginUser(username, password) {
-  // The proxy sends this to https://cruisytravel.com/wp-json/jwt-auth/v1/token
   const response = await fetch(`${WP_API_URL}/jwt-auth/v1/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -33,27 +32,26 @@ export async function loginUser(username, password) {
   return handleResponse(response);
 }
 
-// 2. Fetch User Profile (Includes ACF Fields and Public Link)
+// 2. Fetch User Profile (Includes ACF Fields)
 export async function getUserProfile(token) {
-  // We explicitly request the 'link' field to get the correct Profile URL (e.g. /author/username)
-  const response = await fetch(`${WP_API_URL}/wp/v2/users/me?context=edit&_fields=id,name,email,slug,acf,link,roles`, {
+  const response = await fetch(`${WP_API_URL}/wp/v2/users/me?context=edit`, {
     headers: { 'Authorization': `Bearer ${token}` }
   });
   return handleResponse(response);
 }
 
-// 3. Update Profile (Saves Bio, Selected Itineraries, Name, Gallery)
+// 3. Update Profile (Saves Bio, Selected Itineraries, Name)
 export async function updateAmbassadorProfile(userId, token, data) {
   // Prepare ACF Data structure
   const acfData = {};
   if (data.bio !== undefined) acfData.bio = data.bio;
   
-  // Safety check for array before mapping
-  if (Array.isArray(data.featuredActivities)) {
+  // Handle Relationship field (Array of IDs)
+  if (data.featuredActivities && Array.isArray(data.featuredActivities)) {
     acfData.featured_itineraries = data.featuredActivities.map(a => a.id);
   }
   
-  // FIX: Stringify the gallery array because the ACF field type is 'Text Area'
+  // Handle Gallery (Stringified JSON for Text Area compatibility)
   if (data.gallery) {
     acfData.travel_gallery = JSON.stringify(data.gallery);
   }
@@ -63,7 +61,8 @@ export async function updateAmbassadorProfile(userId, token, data) {
   const payload = { acf: acfData };
   if (data.name) payload.name = data.name;
 
-  const response = await fetch(`${WP_API_URL}/wp/v2/users/${userId}`, {
+  // Use /users/me endpoint for self-updates to ensure permissions handling is correct
+  const response = await fetch(`${WP_API_URL}/wp/v2/users/me`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -116,7 +115,8 @@ export async function createBlogPost(token, postData) {
     ? `${WP_API_URL}/wp/v2/posts/${postData.id}` 
     : `${WP_API_URL}/wp/v2/posts`;
     
-  // FIX: Use 'pending' status so Subscribers/Contributors can submit without 403 Forbidden error
+  // Use 'pending' status so Subscribers/Contributors can submit without 403 Forbidden error
+  // unless they are Admins/Editors
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -126,7 +126,7 @@ export async function createBlogPost(token, postData) {
     body: JSON.stringify({
       title: postData.title,
       content: postData.content,
-      status: 'pending', // Submit for review instead of publishing immediately
+      status: 'pending', 
     })
   });
   return handleResponse(response);
