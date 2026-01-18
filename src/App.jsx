@@ -92,8 +92,10 @@ export default function App() {
 
   const formatAndSetUser = (wpUser, token) => {
     const acf = wpUser.acf || {};
+    // Ensure arrays exist
     const activities = Array.isArray(acf.featured_itineraries) ? acf.featured_itineraries : [];
     
+    // Parse gallery if it's a string, otherwise use as array
     let gallery = [];
     if (typeof acf.travel_gallery === 'string') {
         try { gallery = JSON.parse(acf.travel_gallery); } catch(e) {}
@@ -140,6 +142,7 @@ export default function App() {
   };
 
   const handleUpdateUser = async (updates) => {
+    // Optimistic UI update
     const oldUser = { ...user };
     const newUser = { ...user, ...updates };
     setUser(newUser);
@@ -149,13 +152,13 @@ export default function App() {
     } catch (err) {
       console.error("Failed to save", err);
       alert("Failed to save changes to WordPress. Please try again.");
-      setUser(oldUser); 
+      setUser(oldUser); // Revert
     }
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#f0f9fa] text-[#34a4b8]"><Loader2 className="animate-spin w-8 h-8" /></div>;
 
-  if (!user) return <><BrandStyles /><AuthPage onLogin={handleLogin} error={error} /></>;
+  if (!user) return <><BrandStyles /><AuthPage onLogin={handleLogin} error={error} loading={loading} /></>;
 
   const navItems = [
     { id: 'overview', label: 'Dashboard', icon: <Layout size={20} /> },
@@ -257,7 +260,7 @@ export default function App() {
 
 function Overview({ user, setActiveTab }) {
   const [copied, setCopied] = useState(false);
-  const mainLink = `https://cruisytravel.com/author/${user.slug}`;
+  const mainLink = `https://cruisytravel.com/ambassador/${user.slug}`;
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -617,6 +620,28 @@ function Membership({ user, updateUser }) {
              <button onClick={() => user.plan === 'pro' ? null : handleUpgrade()} disabled={user.plan === 'pro'} className={`w-full py-4 rounded-xl font-russo text-lg transition-all shadow-lg active:scale-95 ${user.plan === 'pro' ? 'bg-slate-100 text-slate-400 cursor-default' : 'gold-gradient text-white hover:shadow-amber-500/25'}`}>{user.plan === 'pro' ? 'Current Plan' : 'Upgrade to Elite'}</button>
          </div>
        </div>
+    </div>
+  );
+}
+
+function Earnings({ user }) {
+  return (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
+      <div className="flex justify-between items-end"><div><h2 className="text-2xl md:text-3xl font-russo text-slate-800">My Earnings</h2><p className="text-slate-500">Track your income.</p></div></div>
+      <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 flex gap-4 items-start">
+        <div className="bg-orange-100 p-2 rounded-full text-orange-600 shrink-0"><Calendar size={20} /></div>
+        <div><h4 className="font-russo text-orange-800 text-sm">Earnings Update Schedule</h4><p className="text-sm text-orange-800 mt-1">Earnings are manually reviewed and updated by the Cruisy team every Friday.</p></div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="bg-[#34a4b8] text-white p-8 rounded-3xl shadow-xl shadow-[#34a4b8]/20 relative overflow-hidden">
+          <div className="relative z-10"><p className="text-blue-100 font-bold text-sm uppercase tracking-wider">Available Payout</p><h3 className="text-4xl font-russo mt-2">$0.00</h3><button className="mt-6 bg-white text-[#34a4b8] px-6 py-3 rounded-xl text-sm font-bold hover:bg-cyan-50 transition-colors w-full shadow-lg">REQUEST PAYOUT</button></div>
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl"></div>
+        </div>
+        <div className="bg-white p-8 rounded-3xl border border-slate-200 flex flex-col justify-center">
+            <p className="text-slate-400 font-bold text-sm uppercase tracking-wider">Total Earned</p><h3 className="text-3xl font-russo mt-2 text-slate-800">$0.00</h3>
+            <div className="flex flex-col gap-1 mt-2"><span className="text-xs text-slate-500">10-12% on Activities</span><span className="text-xs text-slate-500">Up to 5% on Stays/Cruises</span></div>
+        </div>
+      </div>
     </div>
   );
 }
