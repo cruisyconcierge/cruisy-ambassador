@@ -4,8 +4,10 @@
 const WP_API_URL = '/api/wp';
 
 async function handleResponse(response) {
+  // Check content type to ensure we are getting JSON
   const contentType = response.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {
+    // If not JSON (likely an HTML error page from a plugin breaking), throw text to debug
     const text = await response.text();
     console.error("API Error (Non-JSON):", text);
     throw new Error("Server connection failed. Check console for details.");
@@ -47,7 +49,7 @@ export async function updateAmbassadorProfile(userId, token, data) {
     acfData.featured_itineraries = data.featuredActivities.map(a => a.id);
   }
   
-  // Handle Gallery (Stringified JSON for Text Area compatibility in ACF)
+  // Handle Gallery (Stringified JSON for Text Area compatibility)
   if (data.gallery) {
     acfData.travel_gallery = JSON.stringify(data.gallery);
   }
