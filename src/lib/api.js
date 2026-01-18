@@ -1,6 +1,8 @@
-// API Helper for connecting React to WordPress
-// REPLACE THIS with your actual domain
-const WP_API_URL = 'https://cruisytravel.com/wp-json';
+// API Helper for connecting React to WordPress via Vercel Proxy
+
+// CHANGED: We now point to the local proxy defined in vercel.json
+// This bypasses the CORS error because the browser thinks it's talking to the same site.
+const WP_API_URL = '/api/wp';
 
 async function handleResponse(response) {
   // Check content type to ensure we are getting JSON
@@ -9,7 +11,8 @@ async function handleResponse(response) {
     // If not JSON (likely an HTML error page from a plugin breaking), throw text to debug
     const text = await response.text();
     console.error("API Error (Non-JSON response):", text);
-    throw new Error("Server error: The site returned an invalid response.");
+    // If we get HTML back, it's usually a 404 or 500 error page from the server or security plugin
+    throw new Error("Server connection failed. Please ensure the WordPress plugin 'JWT Authentication for WP REST API' is active.");
   }
 
   if (!response.ok) {
@@ -21,6 +24,7 @@ async function handleResponse(response) {
 
 // 1. Login
 export async function loginUser(username, password) {
+  // The proxy sends this to https://cruisytravel.com/wp-json/jwt-auth/v1/token
   const response = await fetch(`${WP_API_URL}/jwt-auth/v1/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -62,8 +66,7 @@ export async function updateAmbassadorProfile(userId, token, data) {
 
 // 4. Search Itineraries (For the Selector Tool)
 export async function searchItineraries(term = '') {
-  // Fetches 'itinerary' CPT. 
-  // IMPORTANT: Ensure 'itinerary' CPT has "Show in REST API" = true
+  // Fetches 'itinerary' CPT via proxy
   const endpoint = `${WP_API_URL}/wp/v2/itinerary?search=${term}&per_page=20&_fields=id,title,acf,featured_media_url`;
   const response = await fetch(endpoint);
   const data = await handleResponse(response);
@@ -72,15 +75,14 @@ export async function searchItineraries(term = '') {
   return data.map(item => ({
     id: item.id,
     title: item.title?.rendered || 'Untitled',
-    // Assuming you have an ACF field 'location' and 'price' on the itinerary CPT
     location: item.acf?.location || '', 
     price: item.acf?.price || 0,
-    image: item.featured_media_url || '', // Requires a plugin to expose media URL, or standard media fetching
+    image: item.featured_media_url || '', 
     type: 'activity' // You can refine this based on categories if needed
   }));
 }
 
-// --- BLOG POSTS ---
+// 5. Get My Blog Posts
 export async function getMyPosts(authorId, token) {
   const response = await fetch(`${WP_API_URL}/wp/v2/posts?author=${authorId}&status=any&_fields=id,title,date,status,link,featured_media_url,content`, {
     headers: { 'Authorization': `Bearer ${token}` }
@@ -98,15 +100,16 @@ export async function getMyPosts(authorId, token) {
   }));
 }
 
+// 6. Create/Update Blog Post
 export async function createBlogPost(token, postData) {
   const endpoint = postData.id 
     ? `${WP_API_URL}/wp/v2/posts/${postData.id}` 
     : `${WP_API_URL}/wp/v2/posts`;
     
-  const method = postData.id ? 'POST' : 'POST'; // WP uses POST for update as well in some configs, or PUT
-
+  // WP uses POST for both create and update usually, but sometimes PUT for updates depending on config
+  // Standard REST API supports POST for update with ID
   const response = await fetch(endpoint, {
-    method: method,
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -120,6 +123,7 @@ export async function createBlogPost(token, postData) {
   return handleResponse(response);
 }
 
+// 7. Delete Blog Post
 export async function deleteBlogPost(id, token) {
    const response = await fetch(`${WP_API_URL}/wp/v2/posts/${id}`, {
     method: 'DELETE',
