@@ -50,12 +50,6 @@ const BrandStyles = () => (
     .gold-gradient {
       background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
     }
-    
-    .glass-panel {
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-    }
   `}</style>
 );
 
@@ -158,7 +152,7 @@ export default function App() {
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#f0f9fa] text-[#34a4b8]"><Loader2 className="animate-spin w-8 h-8" /></div>;
 
-  if (!user) return <><BrandStyles /><AuthPage onLogin={handleLogin} error={error} loading={loading} /></>;
+  if (!user) return <><BrandStyles /><AuthPage onLogin={handleLogin} error={error} /></>;
 
   const navItems = [
     { id: 'overview', label: 'Dashboard', icon: <Layout size={20} /> },
@@ -624,28 +618,6 @@ function Membership({ user, updateUser }) {
   );
 }
 
-function Earnings({ user }) {
-  return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
-      <div className="flex justify-between items-end"><div><h2 className="text-2xl md:text-3xl font-russo text-slate-800">My Earnings</h2><p className="text-slate-500">Track your income.</p></div></div>
-      <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 flex gap-4 items-start">
-        <div className="bg-orange-100 p-2 rounded-full text-orange-600 shrink-0"><Calendar size={20} /></div>
-        <div><h4 className="font-russo text-orange-800 text-sm">Earnings Update Schedule</h4><p className="text-sm text-orange-800 mt-1">Earnings are manually reviewed and updated by the Cruisy team every Friday.</p></div>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-[#34a4b8] text-white p-8 rounded-3xl shadow-xl shadow-[#34a4b8]/20 relative overflow-hidden">
-          <div className="relative z-10"><p className="text-blue-100 font-bold text-sm uppercase tracking-wider">Available Payout</p><h3 className="text-4xl font-russo mt-2">$0.00</h3><button className="mt-6 bg-white text-[#34a4b8] px-6 py-3 rounded-xl text-sm font-bold hover:bg-cyan-50 transition-colors w-full shadow-lg">REQUEST PAYOUT</button></div>
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl"></div>
-        </div>
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 flex flex-col justify-center">
-            <p className="text-slate-400 font-bold text-sm uppercase tracking-wider">Total Earned</p><h3 className="text-3xl font-russo mt-2 text-slate-800">$0.00</h3>
-            <div className="flex flex-col gap-1 mt-2"><span className="text-xs text-slate-500">10-12% on Activities</span><span className="text-xs text-slate-500">Up to 5% on Stays/Cruises</span></div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function AuthPage({ onLogin, error }) {
   const [isLogin, setIsLogin] = useState(true);
   const [isLearnMoreOpen, setIsLearnMoreOpen] = useState(false);
@@ -665,7 +637,7 @@ function AuthPage({ onLogin, error }) {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6 bg-[#34a4b8] text-white flex justify-between items-center"><h3 className="font-russo text-xl">Program Details</h3><button onClick={() => setIsLearnMoreOpen(false)}><XCircle className="w-6 h-6 hover:text-white/80" /></button></div>
             
-            {/* RESTORED DETAILED POPUP CONTENT */}
+            {/* DETAILED POPUP CONTENT */}
             <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto text-slate-700">
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -687,7 +659,7 @@ function AuthPage({ onLogin, error }) {
 
               <div>
                 <h4 className="font-bold text-slate-900 flex items-center gap-2 mb-1"><Globe size={18} className="text-[#34a4b8]" /> Your Booking Page</h4>
-                <p className="text-sm">You get a custom <strong>cruisytravel.com/your-name</strong> link immediately. Share it on social media or send it to friends. We track every booking automatically.</p>
+                <p className="text-sm">You get a custom <strong>cruisytravel.com/ambassador/your-name</strong> link immediately. Share it on social media or send it to friends. We track every booking automatically.</p>
               </div>
 
               <div>
@@ -713,7 +685,6 @@ function AuthPage({ onLogin, error }) {
            <h1 className="text-4xl md:text-5xl font-russo mb-6 leading-tight drop-shadow-md">Get Paid to Share Paradise.</h1>
            <p className="text-blue-50 text-lg mb-8">Become a Cruisy Ambassador. Earn 10-12% on tours & up to 5% on stays.</p>
            
-           {/* RESTORED SIDEBAR HIGHLIGHTS */}
            <div className="space-y-6 mb-8">
              <div className="flex items-start gap-4"><div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Palmtree size={24} className="text-white" /></div><div><h3 className="font-russo text-xl text-white">10-12% on Activities</h3><p className="text-blue-50 text-sm">Earn 10% on most tours. Get <strong>12%</strong> on Fury Water Adventures!</p></div></div>
              <div className="flex items-start gap-4"><div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/10"><Home size={24} className="text-white" /></div><div><h3 className="font-russo text-xl text-white">Up to 5% on Stays & Cruises</h3><p className="text-blue-50 text-sm">Earn up to 5% on hotels and cruises. (e.g., Earn $250 on a $5,000 booking!)</p></div></div>
