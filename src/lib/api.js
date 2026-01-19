@@ -4,17 +4,16 @@
 const WP_API_URL = '/api/wp';
 
 async function handleResponse(response) {
-  // Check content type to ensure we are getting JSON
   const contentType = response.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {
-    // If not JSON (likely an HTML error page from a plugin breaking), throw text to debug
     const text = await response.text();
     console.error("API Error (Non-JSON):", text);
-    throw new Error("Server connection failed. Check console for details.");
+    throw new Error("Server returned an HTML error. Check console.");
   }
   if (!response.ok) {
     const error = await response.json();
     console.error("WP API Error:", error);
+    // Provide a more specific error message if available
     throw new Error(error.message || 'API request failed');
   }
   return response.json();
@@ -39,18 +38,18 @@ export async function getUserProfile(token) {
 }
 
 export async function updateAmbassadorProfile(userId, token, data) {
-  // We strictly separate ACF data to ensure it saves even if 'name' fails permissions
   const acfData = {};
   
+  // Only add fields if they exist in the data object
   if (data.bio !== undefined) acfData.bio = data.bio;
   
-  // Handle Relationship field (Array of IDs)
   if (data.featuredActivities && Array.isArray(data.featuredActivities)) {
+    // Map full objects back to just IDs for the relationship field
     acfData.featured_itineraries = data.featuredActivities.map(a => a.id);
   }
   
-  // Handle Gallery (Stringified JSON for Text Area compatibility)
   if (data.gallery) {
+    // Convert array back to string for Text Area storage
     acfData.travel_gallery = JSON.stringify(data.gallery);
   }
   
@@ -58,7 +57,7 @@ export async function updateAmbassadorProfile(userId, token, data) {
 
   const payload = { acf: acfData };
   
-  // Only send name if it's actually different/present
+  // Only send name if explicitly changed
   if (data.name) payload.name = data.name;
 
   const response = await fetch(`${WP_API_URL}/wp/v2/users/me`, {
@@ -74,7 +73,6 @@ export async function updateAmbassadorProfile(userId, token, data) {
 
 // --- ITINERARIES ---
 export async function searchItineraries(term = '') {
-  // Search itineraries via the proxy
   const endpoint = `${WP_API_URL}/wp/v2/itinerary?search=${term}&per_page=20&_fields=id,title,acf,featured_media_url`;
   const response = await fetch(endpoint);
   const data = await handleResponse(response);
@@ -112,7 +110,6 @@ export async function createBlogPost(token, postData) {
     ? `${WP_API_URL}/wp/v2/posts/${postData.id}` 
     : `${WP_API_URL}/wp/v2/posts`;
     
-  // Use 'pending' status so Subscribers can submit
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -122,7 +119,7 @@ export async function createBlogPost(token, postData) {
     body: JSON.stringify({
       title: postData.title,
       content: postData.content,
-      status: 'pending', 
+      status: 'pending', // Pending review
     })
   });
   return handleResponse(response);
